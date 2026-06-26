@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Color Todo List</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(180deg, #fef6e9 0%, #f7efe4 100%);
+      color: #222;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 460px;
+      background: #ffffff;
+      border-radius: 18px;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+      overflow: hidden;
+      border: 1px solid #eadfce;
+    }
+
+    .header {
+      background: #ffb84d;
+      padding: 22px 22px 16px;
+    }
+
+    .header-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .header img {
+      width: 52px;
+      height: 52px;
+      object-fit: cover;
+      border-radius: 14px;
+      background: #fff3dc;
+      border: 2px solid rgba(255, 255, 255, 0.5);
+    }
+
+    .header h1 {
+      margin: 0;
+      font-size: 28px;
+    }
+
+    .header p {
+      margin: 8px 0 0;
+      font-size: 14px;
+      color: #5f4521;
+    }
+
+    .input-box {
+      display: flex;
+      gap: 10px;
+      padding: 18px 20px;
+      background: #fffaf3;
+      border-bottom: 1px solid #f0e4d5;
+    }
+
+    .input-box input {
+      flex: 1;
+      padding: 12px;
+      border: 1px solid #d8c8b5;
+      border-radius: 10px;
+      font-size: 15px;
+      outline: none;
+    }
+
+    .input-box button {
+      padding: 12px 16px;
+      border: none;
+      border-radius: 10px;
+      background: #2f855a;
+      color: white;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    .input-box button:hover {
+      background: #256b48;
+    }
+
+    .info {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px 20px;
+      font-size: 14px;
+      color: #6b6b6b;
+    }
+
+    .clear-btn {
+      background: none;
+      border: none;
+      color: #c05621;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    ul {
+      list-style: none;
+      margin: 0;
+      padding: 0 16px 16px;
+    }
+
+    li {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 10px;
+      border-bottom: 1px solid #f2ede6;
+    }
+
+    li:last-child {
+      border-bottom: none;
+    }
+
+    li span {
+      flex: 1;
+      font-size: 15px;
+    }
+
+    li.done span {
+      text-decoration: line-through;
+      color: #8b8b8b;
+    }
+
+    li button {
+      border: none;
+      background: #fff1f0;
+      color: #c53030;
+      border-radius: 8px;
+      padding: 6px 10px;
+      cursor: pointer;
+    }
+
+    .empty {
+      padding: 18px 20px 22px;
+      text-align: center;
+      color: #7a7a7a;
+      font-size: 14px;
+    }
+
+    @media (max-width: 480px) {
+      .input-box {
+        flex-direction: column;
+      }
+
+      .input-box button {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="header-row">
+        <img src="https://images.unsplash.com/photo-1517842645767-c639042777db?auto=format&fit=crop&w=200&q=80" alt="Notebook on a desk" />
+        <div>
+          <h1>Todo List</h1>
+          <p>Keep your daily tasks simple and clear.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="input-box">
+      <input type="text" id="taskInput" placeholder="Enter a task" />
+      <button onclick="addTask()">Add</button>
+    </div>
+
+    <div class="info">
+      <span id="taskCount">0 tasks</span>
+      <button class="clear-btn" onclick="clearCompleted()">Clear completed</button>
+    </div>
+
+    <ul id="taskList"></ul>
+    <div class="empty" id="emptyText">No tasks added yet.</div>
+  </div>
+
+  <script>
+    var tasks = [];
+
+    function showTasks() {
+      var list = document.getElementById('taskList');
+      var count = document.getElementById('taskCount');
+      var emptyText = document.getElementById('emptyText');
+
+      list.innerHTML = '';
+
+      for (var i = 0; i < tasks.length; i++) {
+        var li = document.createElement('li');
+        if (tasks[i].done) {
+          li.className = 'done';
+        }
+
+        var checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.checked = tasks[i].done;
+        checkbox.setAttribute('onclick', 'toggleTask(' + i + ')');
+
+        var text = document.createElement('span');
+        text.innerText = tasks[i].name;
+
+        var deleteBtn = document.createElement('button');
+        deleteBtn.innerText = 'Delete';
+        deleteBtn.setAttribute('onclick', 'deleteTask(' + i + ')');
+
+        li.appendChild(checkbox);
+        li.appendChild(text);
+        li.appendChild(deleteBtn);
+        list.appendChild(li);
+      }
+
+      if (tasks.length === 0) {
+        emptyText.style.display = 'block';
+      } else {
+        emptyText.style.display = 'none';
+      }
+
+      if (tasks.length === 1) {
+        count.innerText = '1 task';
+      } else {
+        count.innerText = tasks.length + ' tasks';
+      }
+    }
+
+    function addTask() {
+      var input = document.getElementById('taskInput');
+      var value = input.value.trim();
+
+      if (value === '') {
+        alert('Please enter a task');
+        return;
+      }
+
+      tasks.push({ name: value, done: false });
+      input.value = '';
+      showTasks();
+    }
+
+    function toggleTask(index) {
+      tasks[index].done = !tasks[index].done;
+      showTasks();
+    }
+
+    function deleteTask(index) {
+      tasks.splice(index, 1);
+      showTasks();
+    }
+
+    function clearCompleted() {
+      var newTasks = [];
+
+      for (var i = 0; i < tasks.length; i++) {
+        if (tasks[i].done === false) {
+          newTasks.push(tasks[i]);
+        }
+      }
+
+      tasks = newTasks;
+      showTasks();
+    }
+
+    showTasks();
+  </script>
+</body>
+</html>
